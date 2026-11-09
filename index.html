@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,7 +16,6 @@ body {
     overflow: hidden;
     font-family: Arial, sans-serif;
     background: #87ceeb;
-    user-select: none;
 }
 
 canvas {
@@ -25,134 +24,137 @@ canvas {
 
 #hud {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    z-index: 100;
+    top: 18px;
+    left: 18px;
+    z-index: 10;
     color: white;
-    text-shadow: 2px 2px 4px black;
-    pointer-events: none;
+    text-shadow: 2px 2px 5px black;
 }
 
 #speedometer {
-    width: 150px;
-    height: 150px;
+    width: 155px;
+    height: 155px;
     border: 5px solid white;
     border-radius: 50%;
-    position: relative;
     background: rgba(0,0,0,0.65);
-    box-shadow: 0 0 15px black;
+    position: relative;
+    box-shadow: 0 0 15px #000;
 }
 
 #needle {
-    width: 4px;
-    height: 60px;
-    background: red;
     position: absolute;
-    left: 68px;
+    width: 4px;
+    height: 62px;
+    left: 71px;
     top: 15px;
+    background: #ff3333;
+    border-radius: 5px;
     transform-origin: bottom center;
     transform: rotate(-130deg);
 }
 
 #speedText {
     text-align: center;
-    margin-top: 10px;
-    font-size: 25px;
+    font-size: 23px;
     font-weight: bold;
+    margin-top: 10px;
 }
 
-#status {
-    margin-top: 8px;
-    font-size: 14px;
-    background: rgba(0,0,0,0.5);
-    padding: 8px;
-    border-radius: 6px;
-}
-
-#slingshotPanel {
+#slingshot {
     position: absolute;
     bottom: 25px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 200;
-    width: 310px;
-    text-align: center;
-    color: white;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px black;
-}
-
-#slingshot {
-    position: relative;
     width: 300px;
-    height: 120px;
-    background: rgba(0,0,0,0.55);
-    border: 2px solid rgba(255,255,255,0.6);
-    border-radius: 18px;
-    overflow: hidden;
+    height: 145px;
+    background: rgba(15, 25, 15, 0.82);
+    border: 2px solid rgba(255,255,255,0.8);
+    border-radius: 16px;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    z-index: 20;
+    user-select: none;
     touch-action: none;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
 }
 
 #slingshotTitle {
-    margin-bottom: 8px;
-    font-size: 18px;
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 5px;
 }
 
-#slingshotBase {
+#slingshotArea {
+    width: 100%;
+    height: 78px;
+    position: relative;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+    touch-action: none;
+}
+
+#slingshotCenter {
     position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border: 3px solid #65d66b;
+    border-radius: 50%;
     left: 50%;
     top: 50%;
-    width: 70px;
-    height: 70px;
-    transform: translate(-50%,-50%);
-    border: 4px solid #b87935;
-    border-radius: 50%;
-    background: rgba(139,69,19,0.35);
+    transform: translate(-50%, -50%);
 }
 
 #slingshotHandle {
     position: absolute;
-    width: 44px;
-    height: 44px;
+    width: 30px;
+    height: 30px;
+    background: #ffb52e;
+    border: 3px solid white;
+    border-radius: 50%;
     left: 50%;
     top: 50%;
-    transform: translate(-50%,-50%);
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #ffdb80, #e27a19 65%, #873b0b);
-    border: 3px solid white;
-    box-shadow: 0 0 12px black;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 12px rgba(255,180,40,0.8);
     cursor: grab;
-    touch-action: none;
 }
 
-#slingshotHandle:active {
-    cursor: grabbing;
-}
-
-#launchText {
-    margin-top: 8px;
-    font-size: 13px;
-}
-
-#launchPower {
-    color: #ffdf64;
+#slingshotText {
+    font-size: 12px;
+    margin-top: 5px;
+    color: #ddd;
 }
 
 #resetButton {
-    pointer-events: auto;
-    margin-top: 8px;
-    padding: 9px 20px;
-    border: none;
-    border-radius: 8px;
-    background: #e64a35;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 20;
+    padding: 12px 18px;
     color: white;
+    background: #b52626;
+    border: 2px solid white;
+    border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
 }
 
 #resetButton:hover {
-    background: #ff624b;
+    background: #e03939;
+}
+
+#help {
+    position: absolute;
+    right: 20px;
+    bottom: 190px;
+    color: white;
+    background: rgba(0,0,0,0.55);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    z-index: 10;
 }
 </style>
 </head>
@@ -160,47 +162,31 @@ canvas {
 <body>
 
 <div id="hud">
-
     <div id="speedometer">
         <div id="needle"></div>
     </div>
-
     <div id="speedText">0 MPH</div>
-
-    <div id="status">
-        VALLEY MODE<br>
-        Ready to launch
-    </div>
-
 </div>
 
-<div id="slingshotPanel">
+<button id="resetButton">RESET CAR</button>
 
-    <div id="slingshotTitle">
-        SLINGSHOT LAUNCH
-    </div>
+<div id="help">
+    Drag the slingshot backward to launch.<br>
+    Pull left or right to aim your direction.
+</div>
 
-    <div id="slingshot">
-
-        <div id="slingshotBase"></div>
-
+<div id="slingshot">
+    <div id="slingshotTitle">SLINGSHOT</div>
+    <div id="slingshotArea">
+        <div id="slingshotCenter"></div>
         <div id="slingshotHandle"></div>
-
     </div>
-
-    <div id="launchText">
-        DRAG BACK TO LAUNCH
-        <br>
-        POWER: <span id="launchPower">0%</span>
-    </div>
-
-    <button id="resetButton">RESET CAR</button>
-
+    <div id="slingshotText">Drag backward and release to launch!</div>
 </div>
 
 <script type="module">
 
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 
 ////////////////////////////////////////////////////
 // SCENE
@@ -209,209 +195,153 @@ import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
 const scene = new THREE.Scene();
 
 scene.background = new THREE.Color(0x87ceeb);
-
-scene.fog = new THREE.Fog(
-    0x87ceeb,
-    180,
-    1600
-);
+scene.fog = new THREE.Fog(0x87ceeb, 250, 1800);
 
 const camera = new THREE.PerspectiveCamera(
     70,
     window.innerWidth / window.innerHeight,
     0.1,
-    5000
+    6000
 );
 
 const renderer = new THREE.WebGLRenderer({
     antialias: true
 });
 
-renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-);
-
-renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 2)
-);
-
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.1;
 
 document.body.appendChild(renderer.domElement);
 
 ////////////////////////////////////////////////////
-// TEXTURE GENERATOR
+// LIGHTING
 ////////////////////////////////////////////////////
 
-function proceduralTexture(type, size = 512) {
+const sunlight = new THREE.DirectionalLight(0xffffff, 2.5);
+
+sunlight.position.set(250, 400, 150);
+sunlight.castShadow = true;
+sunlight.shadow.mapSize.set(2048, 2048);
+
+sunlight.shadow.camera.left = -250;
+sunlight.shadow.camera.right = 250;
+sunlight.shadow.camera.top = 250;
+sunlight.shadow.camera.bottom = -250;
+
+scene.add(sunlight);
+
+scene.add(
+    new THREE.HemisphereLight(
+        0xc9eaff,
+        0x405b2a,
+        1.5
+    )
+);
+
+////////////////////////////////////////////////////
+// PROCEDURAL GRASS TEXTURE
+////////////////////////////////////////////////////
+
+function makeGrassTexture(size = 512) {
 
     const canvas = document.createElement("canvas");
-
     canvas.width = size;
     canvas.height = size;
 
     const ctx = canvas.getContext("2d");
 
-    if (type === "grass") {
+    ctx.fillStyle = "#477c2c";
+    ctx.fillRect(0, 0, size, size);
 
-        ctx.fillStyle = "#376d25";
+    const grassColors = [
+        "#5c9139",
+        "#6c9f43",
+        "#3c7027",
+        "#7ba84d",
+        "#315e23",
+        "#527f32"
+    ];
 
-        ctx.fillRect(0, 0, size, size);
+    for (let i = 0; i < 18000; i++) {
 
-        for (let i = 0; i < 18000; i++) {
+        const x = Math.random() * size;
+        const y = Math.random() * size;
 
-            const x = Math.random() * size;
-            const y = Math.random() * size;
+        ctx.strokeStyle = grassColors[
+            Math.floor(Math.random() * grassColors.length)
+        ];
 
-            ctx.strokeStyle = [
-                "#497f30",
-                "#568b37",
-                "#315e21",
-                "#659443",
-                "#83a84c"
-            ][Math.floor(Math.random() * 5)];
+        ctx.lineWidth = 1 + Math.random() * 2;
 
-            ctx.lineWidth = 1 + Math.random() * 2;
-
-            ctx.beginPath();
-
-            ctx.moveTo(x, y);
-
-            ctx.lineTo(
-                x + (Math.random() - 0.5) * 5,
-                y - Math.random() * 8
-            );
-
-            ctx.stroke();
-        }
-    }
-
-    if (type === "bark") {
-
-        ctx.fillStyle = "#55351e";
-
-        ctx.fillRect(0, 0, size, size);
-
-        for (let i = 0; i < 150; i++) {
-
-            ctx.strokeStyle = [
-                "#704727",
-                "#3e2819",
-                "#875a32"
-            ][Math.floor(Math.random() * 3)];
-
-            ctx.lineWidth = 2 + Math.random() * 5;
-
-            ctx.beginPath();
-
-            ctx.moveTo(Math.random() * size, 0);
-
-            ctx.lineTo(
-                Math.random() * size,
-                size
-            );
-
-            ctx.stroke();
-        }
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(
+            x + (Math.random() - 0.5) * 5,
+            y - Math.random() * 9
+        );
+        ctx.stroke();
     }
 
     const texture = new THREE.CanvasTexture(canvas);
 
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-
+    texture.repeat.set(100, 35);
     texture.colorSpace = THREE.SRGBColorSpace;
 
     return texture;
 }
 
-const grassTexture = proceduralTexture("grass");
-
-const barkTexture = proceduralTexture("bark");
-
-grassTexture.repeat.set(150, 150);
-
-barkTexture.repeat.set(1, 3);
-
-////////////////////////////////////////////////////
-// LIGHTING
-////////////////////////////////////////////////////
-
-const sun = new THREE.DirectionalLight(
-    0xffffff,
-    2.5
-);
-
-sun.position.set(
-    200,
-    350,
-    100
-);
-
-sun.castShadow = true;
-
-sun.shadow.mapSize.width = 2048;
-sun.shadow.mapSize.height = 2048;
-
-sun.shadow.camera.left = -200;
-sun.shadow.camera.right = 200;
-sun.shadow.camera.top = 200;
-sun.shadow.camera.bottom = -200;
-
-scene.add(sun);
-
-scene.add(
-    new THREE.HemisphereLight(
-        0xbde5ff,
-        0x46652b,
-        1.5
-    )
-);
+const grassTexture = makeGrassTexture();
 
 ////////////////////////////////////////////////////
 // VALLEY TERRAIN
 ////////////////////////////////////////////////////
 
+// The valley floor is low in the middle.
+// The terrain gradually rises into hills on both sides.
+
 function heightAt(x, z) {
 
-    const valleyWalls =
-        Math.pow(Math.abs(z) / 250, 2) * 55;
+    const sideRise =
+        48 * (1 - Math.exp(-Math.pow(Math.abs(z) / 250, 2)));
 
     const rollingHills =
-        Math.sin(x * 0.002) * 8 +
-        Math.sin(z * 0.015) * 4 +
-        Math.sin(x * 0.012 + z * 0.01) * 3;
+        Math.sin(x * 0.006) * 5 +
+        Math.sin(x * 0.015 + z * 0.008) * 3 +
+        Math.sin(z * 0.018) * 2;
 
-    return valleyWalls + rollingHills - 5;
+    const smallHills =
+        Math.sin(x * 0.025 + z * 0.02) * 1.5;
+
+    return sideRise + rollingHills + smallHills;
 }
 
-const terrainSize = 4000;
-const terrainSegments = 180;
+const terrainWidth = 5000;
+const terrainDepth = 1400;
 
 const terrainGeometry = new THREE.PlaneGeometry(
-    terrainSize,
-    terrainSize,
-    terrainSegments,
-    terrainSegments
+    terrainWidth,
+    terrainDepth,
+    300,
+    120
 );
 
 terrainGeometry.rotateX(-Math.PI / 2);
 
-const vertices = terrainGeometry.attributes.position;
+const terrainPositions = terrainGeometry.attributes.position;
 
-for (let i = 0; i < vertices.count; i++) {
+for (let i = 0; i < terrainPositions.count; i++) {
 
-    const x = vertices.getX(i);
-    const z = vertices.getZ(i);
+    const x = terrainPositions.getX(i);
+    const z = terrainPositions.getZ(i);
 
-    vertices.setY(
+    terrainPositions.setY(
         i,
         heightAt(x, z)
     );
@@ -419,59 +349,62 @@ for (let i = 0; i < vertices.count; i++) {
 
 terrainGeometry.computeVertexNormals();
 
+const terrainMaterial = new THREE.MeshStandardMaterial({
+    map: grassTexture,
+    roughness: 1,
+    metalness: 0
+});
+
 const terrain = new THREE.Mesh(
     terrainGeometry,
-    new THREE.MeshStandardMaterial({
-        map: grassTexture,
-        roughness: 1
-    })
+    terrainMaterial
 );
 
+terrain.position.x = 0;
 terrain.receiveShadow = true;
+terrain.castShadow = false;
 
 scene.add(terrain);
 
 ////////////////////////////////////////////////////
-// VALLEY MOUNTAINS
+// DISTANT VALLEY MOUNTAINS
 ////////////////////////////////////////////////////
 
 const mountainMaterials = [
-    new THREE.MeshStandardMaterial({
-        color: 0x526c49,
-        roughness: 1
-    }),
-    new THREE.MeshStandardMaterial({
-        color: 0x667c56,
-        roughness: 1
-    }),
-    new THREE.MeshStandardMaterial({
-        color: 0x435c43,
-        roughness: 1
-    })
+    new THREE.MeshStandardMaterial({ color: 0x496a43, roughness: 1 }),
+    new THREE.MeshStandardMaterial({ color: 0x56764b, roughness: 1 }),
+    new THREE.MeshStandardMaterial({ color: 0x3d6040, roughness: 1 }),
+    new THREE.MeshStandardMaterial({ color: 0x668050, roughness: 1 })
 ];
 
-for (let i = 0; i < 35; i++) {
+for (let i = 0; i < 55; i++) {
+
+    const side = Math.random() < 0.5 ? -1 : 1;
+
+    const x = (Math.random() - 0.5) * 4600;
+    const z = side * (450 + Math.random() * 450);
+
+    const width = 100 + Math.random() * 180;
+    const height = 100 + Math.random() * 230;
 
     const mountain = new THREE.Mesh(
-        new THREE.ConeGeometry(
-            80 + Math.random() * 100,
-            120 + Math.random() * 180,
-            6
-        ),
+        new THREE.ConeGeometry(width, height, 7),
         mountainMaterials[
             Math.floor(Math.random() * mountainMaterials.length)
         ]
     );
 
-    const side = Math.random() < 0.5 ? -1 : 1;
-
     mountain.position.set(
-        (Math.random() - 0.5) * 3500,
-        20,
-        side * (300 + Math.random() * 250)
+        x,
+        heightAt(x, z) + height / 2 - 15,
+        z
     );
 
+    mountain.scale.z = 1.2 + Math.random() * 1.5;
+    mountain.rotation.y = Math.random() * Math.PI;
+
     mountain.castShadow = true;
+    mountain.receiveShadow = true;
 
     scene.add(mountain);
 }
@@ -480,71 +413,55 @@ for (let i = 0; i < 35; i++) {
 // TREES
 ////////////////////////////////////////////////////
 
-const trunkMaterial = new THREE.MeshStandardMaterial({
-    map: barkTexture,
+const barkMaterial = new THREE.MeshStandardMaterial({
+    color: 0x604025,
     roughness: 1
 });
 
-const leavesMaterials = [
-    new THREE.MeshStandardMaterial({
-        color: 0x236b22,
-        roughness: 1
-    }),
-    new THREE.MeshStandardMaterial({
-        color: 0x347e27,
-        roughness: 1
-    }),
-    new THREE.MeshStandardMaterial({
-        color: 0x174d20,
-        roughness: 1
-    })
+const leafMaterials = [
+    new THREE.MeshStandardMaterial({ color: 0x236b27, roughness: 1 }),
+    new THREE.MeshStandardMaterial({ color: 0x347e30, roughness: 1 }),
+    new THREE.MeshStandardMaterial({ color: 0x174c20, roughness: 1 }),
+    new THREE.MeshStandardMaterial({ color: 0x477f31, roughness: 1 })
 ];
 
-for (let i = 0; i < 550; i++) {
+function createTree(x, z, scale = 1) {
 
     const tree = new THREE.Group();
 
+    const trunkHeight = 7 * scale;
+
     const trunk = new THREE.Mesh(
         new THREE.CylinderGeometry(
-            0.5,
-            0.8,
-            9,
+            0.45 * scale,
+            0.7 * scale,
+            trunkHeight,
             8
         ),
-        trunkMaterial
+        barkMaterial
     );
 
-    trunk.position.y = 4.5;
-
+    trunk.position.y = trunkHeight / 2;
     trunk.castShadow = true;
 
-    const leaves = new THREE.Mesh(
+    tree.add(trunk);
+
+    const leaf = new THREE.Mesh(
         new THREE.SphereGeometry(
-            4,
+            3.5 * scale,
             12,
             12
         ),
-        leavesMaterials[
-            Math.floor(Math.random() * leavesMaterials.length)
+        leafMaterials[
+            Math.floor(Math.random() * leafMaterials.length)
         ]
     );
 
-    leaves.position.y = 10;
+    leaf.position.y = trunkHeight + 1.5 * scale;
+    leaf.scale.y = 1.35;
+    leaf.castShadow = true;
 
-    leaves.scale.y = 1.5;
-
-    leaves.castShadow = true;
-
-    tree.add(trunk);
-    tree.add(leaves);
-
-    const x = (Math.random() - 0.5) * 3500;
-
-    const side = Math.random() < 0.5 ? -1 : 1;
-
-    const z = side * (
-        40 + Math.random() * 300
-    );
+    tree.add(leaf);
 
     tree.position.set(
         x,
@@ -552,11 +469,22 @@ for (let i = 0; i < 550; i++) {
         z
     );
 
-    tree.scale.setScalar(
+    scene.add(tree);
+}
+
+for (let i = 0; i < 500; i++) {
+
+    const x = (Math.random() - 0.5) * 4700;
+
+    const side = Math.random() < 0.5 ? -1 : 1;
+
+    const z = side * (80 + Math.random() * 500);
+
+    createTree(
+        x,
+        z,
         0.7 + Math.random() * 1.5
     );
-
-    scene.add(tree);
 }
 
 ////////////////////////////////////////////////////
@@ -564,28 +492,33 @@ for (let i = 0; i < 550; i++) {
 ////////////////////////////////////////////////////
 
 const rockMaterial = new THREE.MeshStandardMaterial({
-    color: 0x777b76,
+    color: 0x777b70,
     roughness: 1
 });
 
-for (let i = 0; i < 250; i++) {
+for (let i = 0; i < 180; i++) {
+
+    const x = (Math.random() - 0.5) * 4500;
+    const z = (Math.random() - 0.5) * 1000;
 
     const rock = new THREE.Mesh(
         new THREE.DodecahedronGeometry(
-            2 + Math.random() * 5,
-            1
+            1 + Math.random() * 3,
+            0
         ),
         rockMaterial
     );
 
-    const x = (Math.random() - 0.5) * 3500;
-
-    const z = (Math.random() - 0.5) * 450;
-
     rock.position.set(
         x,
-        heightAt(x, z) + 1,
+        heightAt(x, z) + 0.5,
         z
+    );
+
+    rock.scale.set(
+        1 + Math.random() * 2,
+        0.5 + Math.random(),
+        1 + Math.random() * 2
     );
 
     rock.rotation.set(
@@ -595,6 +528,7 @@ for (let i = 0; i < 250; i++) {
     );
 
     rock.castShadow = true;
+    rock.receiveShadow = true;
 
     scene.add(rock);
 }
@@ -606,40 +540,39 @@ for (let i = 0; i < 250; i++) {
 const car = new THREE.Group();
 
 const redPaint = new THREE.MeshStandardMaterial({
-    color: 0xd80000,
-    metalness: 0.8,
-    roughness: 0.2
+    color: 0xd50000,
+    metalness: 0.75,
+    roughness: 0.22
 });
 
 const blackPaint = new THREE.MeshStandardMaterial({
     color: 0x111111,
-    metalness: 0.5,
-    roughness: 0.3
+    metalness: 0.3,
+    roughness: 0.45
 });
 
 const glassMaterial = new THREE.MeshStandardMaterial({
-    color: 0x162e40,
-    metalness: 0.7,
-    roughness: 0.1
+    color: 0x142b3b,
+    metalness: 0.6,
+    roughness: 0.12
 });
 
 const chromeMaterial = new THREE.MeshStandardMaterial({
-    color: 0xcccccc,
+    color: 0xc9c9c9,
     metalness: 0.9,
     roughness: 0.15
 });
 
-// Main body
+// The car faces +X.
+// The bottom of the tires is exactly at local Y = 0.
 
 const body = new THREE.Mesh(
     new THREE.BoxGeometry(8, 2.5, 4),
     redPaint
 );
 
-body.position.y = 2;
-
+body.position.set(0, 2, 0);
 body.castShadow = true;
-
 car.add(body);
 
 // Hood
@@ -650,7 +583,7 @@ const hood = new THREE.Mesh(
 );
 
 hood.position.set(2.6, 3.2, 0);
-
+hood.castShadow = true;
 car.add(hood);
 
 // Roof
@@ -660,13 +593,11 @@ const roof = new THREE.Mesh(
     redPaint
 );
 
-roof.position.y = 4;
-
+roof.position.set(-0.1, 4, 0);
 roof.castShadow = true;
-
 car.add(roof);
 
-// Windows
+// Front windshield
 
 const windshield = new THREE.Mesh(
     new THREE.BoxGeometry(0.15, 1.3, 2.8),
@@ -674,149 +605,122 @@ const windshield = new THREE.Mesh(
 );
 
 windshield.position.set(2.05, 4, 0);
-
 car.add(windshield);
 
+// Rear windshield
+
 const rearWindow = windshield.clone();
-
 rearWindow.position.x = -2.05;
-
 car.add(rearWindow);
 
 // Side windows
 
 for (const side of [-1, 1]) {
 
-    const windowMesh = new THREE.Mesh(
+    const sideWindow = new THREE.Mesh(
         new THREE.BoxGeometry(3.5, 1.1, 0.12),
         glassMaterial
     );
 
-    windowMesh.position.set(
+    sideWindow.position.set(
         0,
         4,
         side * 1.55
     );
 
-    car.add(windowMesh);
+    car.add(sideWindow);
 }
 
 // Wheels
 
 const wheels = [];
 
-function wheel(x, z) {
+function createWheel(x, z) {
 
-    const group = new THREE.Group();
+    const wheelGroup = new THREE.Group();
 
     const tire = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            1,
-            1,
-            0.7,
-            32
-        ),
+        new THREE.CylinderGeometry(1, 1, 0.7, 32),
         blackPaint
     );
 
     tire.rotation.x = Math.PI / 2;
-
-    group.add(tire);
+    tire.castShadow = true;
+    wheelGroup.add(tire);
 
     const rim = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            0.55,
-            0.55,
-            0.73,
-            24
-        ),
+        new THREE.CylinderGeometry(0.55, 0.55, 0.73, 24),
         chromeMaterial
     );
 
     rim.rotation.x = Math.PI / 2;
+    wheelGroup.add(rim);
 
-    group.add(rim);
+    // Tire radius is 1, so its bottom touches local Y = 0.
+    wheelGroup.position.set(x, 1, z);
 
-    group.position.set(x, 1, z);
-
-    car.add(group);
-
-    wheels.push(group);
+    car.add(wheelGroup);
+    wheels.push(wheelGroup);
 }
 
-wheel(-2.5, -2);
-wheel(2.5, -2);
-wheel(-2.5, 2);
-wheel(2.5, 2);
+createWheel(-2.5, -2);
+createWheel(2.5, -2);
+createWheel(-2.5, 2);
+createWheel(2.5, 2);
 
 // Headlights
 
+const headlightMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    emissive: 0xffffcc,
+    emissiveIntensity: 1.2
+});
+
 for (const side of [-1, 1]) {
 
-    const headlight = new THREE.Mesh(
+    const light = new THREE.Mesh(
         new THREE.BoxGeometry(0.2, 0.6, 0.8),
-        new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            emissive: 0xffffcc,
-            emissiveIntensity: 1
-        })
+        headlightMaterial
     );
 
-    headlight.position.set(
-        4.05,
-        2.5,
-        side * 1.3
-    );
-
-    car.add(headlight);
+    light.position.set(4.05, 2.5, side * 1.3);
+    car.add(light);
 }
 
 // Rear lights
 
+const rearLightMaterial = new THREE.MeshStandardMaterial({
+    color: 0xff0000,
+    emissive: 0xff0000,
+    emissiveIntensity: 0.8
+});
+
 for (const side of [-1, 1]) {
 
-    const rearLight = new THREE.Mesh(
+    const light = new THREE.Mesh(
         new THREE.BoxGeometry(0.2, 0.6, 0.8),
-        new THREE.MeshStandardMaterial({
-            color: 0xff0000,
-            emissive: 0xff0000,
-            emissiveIntensity: 0.7
-        })
+        rearLightMaterial
     );
 
-    rearLight.position.set(
-        -4.05,
-        2.5,
-        side * 1.3
-    );
-
-    car.add(rearLight);
+    light.position.set(-4.05, 2.5, side * 1.3);
+    car.add(light);
 }
 
-// Exhaust
+// Rear bumper
 
-for (const side of [-1, 1]) {
+const bumper = new THREE.Mesh(
+    new THREE.BoxGeometry(0.35, 0.4, 4.3),
+    chromeMaterial
+);
 
-    const exhaust = new THREE.Mesh(
-        new THREE.CylinderGeometry(
-            0.18,
-            0.18,
-            0.8,
-            12
-        ),
-        chromeMaterial
-    );
+bumper.position.set(-4.15, 1.35, 0);
+car.add(bumper);
 
-    exhaust.rotation.z = Math.PI / 2;
+// Front bumper
 
-    exhaust.position.set(
-        -4.3,
-        0.9,
-        side
-    );
-
-    car.add(exhaust);
-}
+const frontBumper = bumper.clone();
+frontBumper.position.x = 4.15;
+car.add(frontBumper);
 
 scene.add(car);
 
@@ -824,446 +728,349 @@ scene.add(car);
 // VEHICLE PHYSICS
 ////////////////////////////////////////////////////
 
-let velocity = new THREE.Vector3(0, 0, 0);
+// The car begins at the center of the grassy valley.
 
 let heading = 0;
-
+let velocityX = 0;
+let velocityZ = 0;
 let verticalVelocity = 0;
 
-let isAirborne = false;
-
-let grounded = true;
-
-let totalDistance = 0;
-
-const MAX_LAUNCH_POWER = 85;
-
-////////////////////////////////////////////////////
-// SLINGSHOT CONTROLS
-////////////////////////////////////////////////////
-
-const slingshot = document.getElementById("slingshot");
-
-const handle = document.getElementById("slingshotHandle");
-
-const powerText = document.getElementById("launchPower");
-
-const statusText = document.getElementById("status");
-
-let dragging = false;
-
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
 let dragX = 0;
 let dragY = 0;
 
-const centerX = 150;
-const centerY = 60;
+let grounded = true;
 
-const MAX_DRAG = 45;
+const gravity = 28;
 
-function moveHandle(x, y) {
-
-    const dx = x - centerX;
-    const dy = y - centerY;
-
-    const distance = Math.sqrt(
-        dx * dx + dy * dy
-    );
-
-    const scale = Math.min(
-        1,
-        MAX_DRAG / Math.max(distance, 0.001)
-    );
-
-    dragX = dx * scale;
-    dragY = dy * scale;
-
-    handle.style.left =
-        `${centerX + dragX}px`;
-
-    handle.style.top =
-        `${centerY + dragY}px`;
-
-    // Pulling down increases launch power.
-    const backwardPower = Math.max(
-        0,
-        dragY / MAX_DRAG
-    );
-
-    const sideways = Math.min(
-        1,
-        Math.abs(dragX) / MAX_DRAG
-    );
-
-    const power = Math.round(
-        backwardPower * 100
-    );
-
-    powerText.textContent = power + "%";
-}
-
-function resetHandle() {
-
-    handle.style.left = "50%";
-    handle.style.top = "50%";
-
-    dragX = 0;
-    dragY = 0;
-
-    powerText.textContent = "0%";
-}
-
-handle.addEventListener("pointerdown", e => {
-
-    dragging = true;
-
-    handle.setPointerCapture(e.pointerId);
-
-    e.preventDefault();
-});
-
-handle.addEventListener("pointermove", e => {
-
-    if (!dragging) return;
-
-    const rect = slingshot.getBoundingClientRect();
-
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    moveHandle(x, y);
-});
-
-handle.addEventListener("pointerup", () => {
-
-    if (!dragging) return;
-
-    dragging = false;
-
-    launchCar();
-
-    resetHandle();
-});
-
-handle.addEventListener("pointercancel", () => {
-
-    dragging = false;
-
-    resetHandle();
-});
-
-////////////////////////////////////////////////////
-// LAUNCH CAR
-////////////////////////////////////////////////////
-
-function launchCar() {
-
-    const power = THREE.MathUtils.clamp(
-        dragY / MAX_DRAG,
-        0,
-        1
-    );
-
-    if (power < 0.05) {
-
-        statusText.innerHTML =
-            "Pull farther back to launch!";
-
-        return;
-    }
-
-    const launchSpeed =
-        15 + power * MAX_LAUNCH_POWER;
-
-    // Sideways dragging changes direction.
-    const steeringAngle =
-        -dragX / MAX_DRAG * 0.65;
-
-    heading += steeringAngle;
-
-    const forward = new THREE.Vector3(
-        Math.cos(heading),
-        0,
-        -Math.sin(heading)
-    );
-
-    velocity.copy(forward).multiplyScalar(
-        launchSpeed
-    );
-
-    verticalVelocity = 0;
-
-    isAirborne = false;
-
-    grounded = true;
-
-    statusText.innerHTML =
-        "LAUNCHING! " + Math.round(launchSpeed) + " POWER";
-
-}
-
-////////////////////////////////////////////////////
-// RESET CAR
-////////////////////////////////////////////////////
-
-function resetCar() {
-
-    car.position.set(
-        0,
-        heightAt(0, 0) + 1,
-        0
-    );
-
-    heading = 0;
-
-    velocity.set(0, 0, 0);
-
-    verticalVelocity = 0;
-
-    isAirborne = false;
-
-    grounded = true;
-
-    totalDistance = 0;
-
-    car.rotation.set(0, 0, 0);
-
-    statusText.innerHTML =
-        "Ready to launch";
-
-}
-
-document.getElementById("resetButton").addEventListener(
-    "click",
-    resetCar
-);
-
-////////////////////////////////////////////////////
-// VEHICLE UPDATE
-////////////////////////////////////////////////////
-
-const clock = new THREE.Clock();
-
-function updateVehicle(delta) {
-
-    delta = Math.min(delta, 0.04);
-
-    const oldPosition = car.position.clone();
+function setCarOnGround() {
 
     const groundHeight = heightAt(
         car.position.x,
         car.position.z
     );
 
-    // Gravity
+    // The car's local origin is at the bottom of its tires.
+    // This puts the tire bottoms exactly on the terrain.
+    car.position.y = groundHeight;
 
-    if (isAirborne) {
+    verticalVelocity = 0;
+    grounded = true;
+}
 
-        verticalVelocity -= 24 * delta;
+function resetCar() {
 
-        car.position.y += verticalVelocity * delta;
+    car.position.set(0, 0, 0);
 
-        if (car.position.y <= groundHeight + 1) {
+    heading = 0;
 
-            car.position.y = groundHeight + 1;
+    velocityX = 0;
+    velocityZ = 0;
+    verticalVelocity = 0;
 
-            verticalVelocity = 0;
+    car.rotation.set(0, 0, 0);
 
-            isAirborne = false;
+    setCarOnGround();
 
-            statusText.innerHTML =
-                "Landed! Pull back to launch again";
-        }
-    }
+    updateSlingshotHandle(0, 0);
+}
 
-    // Ground physics
+resetCar();
 
-    if (!isAirborne) {
+////////////////////////////////////////////////////
+// SLINGSHOT CONTROLS
+////////////////////////////////////////////////////
 
-        car.position.y = groundHeight + 1;
+const slingshotArea = document.getElementById("slingshotArea");
+const slingshotHandle = document.getElementById("slingshotHandle");
+const slingshotText = document.getElementById("slingshotText");
 
-        // Terrain slopes affect the vehicle.
-        const frontHeight = heightAt(
-            car.position.x + Math.cos(heading) * 4,
-            car.position.z - Math.sin(heading) * 4
-        );
+const maxPull = 55;
 
-        const slope = frontHeight - groundHeight;
+function updateSlingshotHandle(x, y) {
 
-        velocity.y += -slope * 0.8 * delta;
+    slingshotHandle.style.left =
+        `calc(50% + ${x}px)`;
 
-        // Small bumps and hills.
+    slingshotHandle.style.top =
+        `calc(50% + ${y}px)`;
+}
 
-        if (Math.abs(velocity.y) > 30) {
+slingshotHandle.addEventListener("pointerdown", event => {
 
-            verticalVelocity = 8;
+    event.preventDefault();
 
-            isAirborne = true;
-        }
-    }
+    isDragging = true;
 
-    // Move car.
+    dragStartX = event.clientX;
+    dragStartY = event.clientY;
 
-    car.position.x += velocity.x * delta;
+    dragX = 0;
+    dragY = 0;
 
-    car.position.z += velocity.z * delta;
+    slingshotHandle.setPointerCapture(event.pointerId);
+});
 
-    // Air resistance / friction.
+slingshotHandle.addEventListener("pointermove", event => {
 
-    const friction = isAirborne ? 0.998 : 0.985;
+    if (!isDragging) return;
 
-    velocity.x *= Math.pow(friction, delta * 60);
+    event.preventDefault();
 
-    velocity.z *= Math.pow(friction, delta * 60);
-
-    // Natural speed reduction.
-
-    const currentSpeed = Math.sqrt(
-        velocity.x * velocity.x +
-        velocity.z * velocity.z
+    dragX = THREE.MathUtils.clamp(
+        event.clientX - dragStartX,
+        -maxPull,
+        maxPull
     );
 
-    if (currentSpeed < 0.15) {
+    dragY = THREE.MathUtils.clamp(
+        event.clientY - dragStartY,
+        -maxPull,
+        maxPull
+    );
 
-        velocity.set(0, 0, 0);
-    }
+    updateSlingshotHandle(dragX, dragY);
 
-    // Car orientation.
+    const pullPower = Math.round(
+        Math.min(100, Math.max(0, dragY) / maxPull * 100)
+    );
 
-    const direction = new THREE.Vector3(
-        velocity.x,
+    slingshotText.textContent =
+        "Launch power: " + pullPower + "%";
+});
+
+function releaseSlingshot() {
+
+    if (!isDragging) return;
+
+    isDragging = false;
+
+    // Pulling downward stores forward launch power.
+    const pullPower = THREE.MathUtils.clamp(
+        dragY / maxPull,
         0,
-        velocity.z
+        1
     );
 
-    if (direction.length() > 0.5) {
+    // Pulling left/right adjusts the launch direction.
+    const aim = THREE.MathUtils.clamp(
+        dragX / maxPull,
+        -1,
+        1
+    );
+
+    if (pullPower > 0.04) {
+
+        heading -= aim * 0.8;
+
+        const launchSpeed = 18 + pullPower * 90;
+
+        velocityX += Math.cos(heading) * launchSpeed;
+        velocityZ -= Math.sin(heading) * launchSpeed;
+
+        grounded = true;
+
+        slingshotText.textContent =
+            "LAUNCHED! Pull back to launch again.";
+    } else {
+
+        slingshotText.textContent =
+            "Drag backward and release to launch!";
+    }
+
+    dragX = 0;
+    dragY = 0;
+
+    updateSlingshotHandle(0, 0);
+}
+
+slingshotHandle.addEventListener(
+    "pointerup",
+    releaseSlingshot
+);
+
+slingshotHandle.addEventListener(
+    "pointercancel",
+    releaseSlingshot
+);
+
+////////////////////////////////////////////////////
+// RESET BUTTON
+////////////////////////////////////////////////////
+
+document.getElementById("resetButton").addEventListener(
+    "click",
+    () => {
+
+        resetCar();
+
+        slingshotText.textContent =
+            "Drag backward and release to launch!";
+    }
+);
+
+////////////////////////////////////////////////////
+// UPDATE VEHICLE
+////////////////////////////////////////////////////
+
+function updateVehicle(delta) {
+
+    // Gravity while airborne.
+    if (!grounded) {
+
+        verticalVelocity -= gravity * delta;
+        car.position.y += verticalVelocity * delta;
+    }
+
+    const groundHeight = heightAt(
+        car.position.x,
+        car.position.z
+    );
+
+    // Land on the terrain.
+    if (car.position.y <= groundHeight) {
+
+        car.position.y = groundHeight;
+
+        verticalVelocity = 0;
+        grounded = true;
+    }
+
+    // Apply air and ground resistance.
+    const resistance = grounded ? 0.993 : 0.999;
+
+    const drag = Math.pow(resistance, delta * 60);
+
+    velocityX *= drag;
+    velocityZ *= drag;
+
+    // Move the car.
+    car.position.x += velocityX * delta;
+    car.position.z += velocityZ * delta;
+
+    // Small terrain bumps affect the car's vertical position.
+    if (grounded) {
+
+        car.position.y = heightAt(
+            car.position.x,
+            car.position.z
+        );
+    }
+
+    // Face the direction of travel.
+    const speed = Math.sqrt(
+        velocityX * velocityX +
+        velocityZ * velocityZ
+    );
+
+    if (speed > 0.5) {
 
         heading = Math.atan2(
-            -direction.z,
-            direction.x
+            -velocityZ,
+            velocityX
         );
     }
 
-    car.rotation.y = -heading;
+    car.rotation.y = heading;
 
-    // Rotate wheels.
-
-    wheels.forEach(w => {
-
-        w.children[0].rotation.z +=
-            currentSpeed * delta;
-
-        w.children[1].rotation.z +=
-            currentSpeed * delta;
+    // Wheel rotation.
+    wheels.forEach(wheel => {
+        wheel.rotation.z -= speed * delta * 1.5;
     });
 
-    // Distance.
-
-    totalDistance += oldPosition.distanceTo(
-        car.position
-    );
-
-    // Speedometer.
-
-    const mph = Math.round(
-        currentSpeed * 2.237
-    );
+    // Update speedometer.
+    const mph = Math.round(speed * 2.237);
 
     document.getElementById("speedText").textContent =
         mph + " MPH";
 
-    document.getElementById("needle").style.transform =
-        `rotate(${Math.min(130, -130 + mph * 2)}deg)`;
+    const needleRotation = THREE.MathUtils.clamp(
+        -130 + mph * 2,
+        -130,
+        130
+    );
 
+    document.getElementById("needle").style.transform =
+        `rotate(${needleRotation}deg)`;
 }
 
 ////////////////////////////////////////////////////
-// CAMERA - BEHIND THE CAR
+// REAR CHASE CAMERA
 ////////////////////////////////////////////////////
 
-const cameraOffset = new THREE.Vector3(
-    -24,
-    10,
-    0
-);
+const cameraTarget = new THREE.Vector3();
+const cameraPosition = new THREE.Vector3();
 
-function updateCamera(delta) {
+function updateCamera() {
 
-    // Camera follows the back of the vehicle.
-
-    const offset = cameraOffset.clone();
-
-    offset.applyAxisAngle(
-        new THREE.Vector3(0, 1, 0),
-        -heading
+    // The car's front is +X.
+    // Negative X places the camera behind the car.
+    // This makes the camera look toward the back of the vehicle.
+    const cameraOffset = new THREE.Vector3(
+        -24,
+        9,
+        0
     );
 
-    const desiredPosition = car.position.clone().add(
-        offset
+    // Rotate the offset with the car's heading.
+    cameraOffset.applyAxisAngle(
+        new THREE.Vector3(0, 1, 0),
+        heading
+    );
+
+    cameraPosition.set(
+        car.position.x + cameraOffset.x,
+        car.position.y + cameraOffset.y,
+        car.position.z + cameraOffset.z
     );
 
     camera.position.lerp(
-        desiredPosition,
-        1 - Math.pow(0.001, delta)
+        cameraPosition,
+        0.09
     );
 
-    const lookTarget = car.position.clone();
+    // Aim at the rear half of the car so the camera sees its back.
+    cameraTarget.set(
+        car.position.x - Math.cos(heading) * 2,
+        car.position.y + 2.4,
+        car.position.z + Math.sin(heading) * 2
+    );
 
-    lookTarget.x += Math.cos(heading) * 10;
-
-    lookTarget.z -= Math.sin(heading) * 10;
-
-    lookTarget.y += 3;
-
-    camera.lookAt(lookTarget);
+    camera.lookAt(cameraTarget);
 }
 
 ////////////////////////////////////////////////////
-// SKY SUN
+// SUN
 ////////////////////////////////////////////////////
 
 const sunSphere = new THREE.Mesh(
-    new THREE.SphereGeometry(25, 32, 32),
+    new THREE.SphereGeometry(25, 24, 24),
     new THREE.MeshBasicMaterial({
-        color: 0xffff66
+        color: 0xffff99
     })
 );
 
-sunSphere.position.set(
-    500,
-    450,
-    -700
-);
-
+sunSphere.position.set(500, 450, -700);
 scene.add(sunSphere);
 
 ////////////////////////////////////////////////////
-// INITIAL POSITION
+// ANIMATION LOOP
 ////////////////////////////////////////////////////
 
-resetCar();
-
-camera.position.set(-24, 12, 0);
-
-camera.lookAt(car.position);
-
-////////////////////////////////////////////////////
-// GAME LOOP
-////////////////////////////////////////////////////
+const clock = new THREE.Clock();
 
 function animate() {
 
     requestAnimationFrame(animate);
 
-    const delta = clock.getDelta();
+    const delta = Math.min(clock.getDelta(), 0.04);
 
     updateVehicle(delta);
+    updateCamera();
 
-    updateCamera(delta);
-
-    renderer.render(
-        scene,
-        camera
-    );
+    renderer.render(scene, camera);
 }
 
 animate();
@@ -1283,10 +1090,10 @@ window.addEventListener("resize", () => {
         window.innerWidth,
         window.innerHeight
     );
-
 });
 
 </script>
 
 </body>
 </html>
+```
