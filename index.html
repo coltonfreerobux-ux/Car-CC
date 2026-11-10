@@ -11,149 +11,173 @@
 <body>
 <div id="hud"><div id="speedometer"><div id="needle"></div></div><div id="speedText">0 MPH</div></div>
 <button id="resetButton">RESET CAR</button>
-<div id="help">Drag the slingshot downward and release to launch.<br>Pull left or right to aim.</div>
+<div id="help">Pull slingshot down and release to launch.<br>A / D or ← / → to steer.<br>Downhill adds speed; uphill slows you.</div>
 <div id="slingshot"><div id="slingshotTitle">SLINGSHOT</div><div id="slingshotArea"><div id="slingshotCenter"></div><div id="slingshotHandle"></div></div><div id="slingshotText">Pull down and release to launch!</div></div>
 <script type="module">
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 
-// Create a simple, continuous valley floor and keep the car on it.
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x87ceeb);
-scene.fog = new THREE.Fog(0x87ceeb, 450, 2600);
-const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 5000);
-const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.1;
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x87ceeb);
+scene.fog=new THREE.Fog(0x87ceeb,350,2400);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,5000);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.1;
 document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xd8efff,0x405b2a,2.1));
+const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(200,350,100);scene.add(sun);
 
-scene.add(new THREE.HemisphereLight(0xc9eaff, 0x405b2a, 2));
-const sun = new THREE.DirectionalLight(0xffffff, 2.5);
-sun.position.set(200, 400, 100);
-scene.add(sun);
-
+// A broad, rolling valley. The central route has gentle hills; the edges rise into ridges.
 function heightAt(x,z){
-  // Flat driving strip in the middle, with valley sides rising on both sides.
-  const sides = 55 * (1 - Math.exp(-Math.pow(Math.max(0, Math.abs(z)-45)/230, 2)));
-  const gentleRoll = Math.sin(x*0.003)*2 + Math.sin(x*0.009 + z*0.006)*1.2;
-  return sides + gentleRoll;
+  const valleySides=48*(1-Math.exp(-Math.pow(Math.max(0,Math.abs(z)-90)/300,2)));
+  const longHills=14*Math.sin(x*.0017)+6*Math.sin(x*.0035+.7);
+  const crossHills=2.2*Math.sin(z*.012+x*.0008);
+  return valleySides+longHills+crossHills;
 }
-const groundGeo = new THREE.PlaneGeometry(5000, 1400, 240, 100);
-groundGeo.rotateX(-Math.PI/2);
-const groundPos = groundGeo.attributes.position;
-for(let i=0;i<groundPos.count;i++) groundPos.setY(i,heightAt(groundPos.getX(i),groundPos.getZ(i)));
+function heightDerivatives(x,z){
+  const dx=(heightAt(x+.5,z)-heightAt(x-.5,z));
+  const dz=(heightAt(x,z+.5)-heightAt(x,z-.5));
+  return {x:dx,z:dz};
+}
+
+// Procedural grass texture gives the ground some visible detail without external assets.
+function makeGrassTexture(size=512){
+  const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#598d39';ctx.fillRect(0,0,size,size);
+  const colors=['#6b9c45','#4b7e32','#78a64f','#3f702c','#5c8d3c'];
+  for(let i=0;i<14000;i++){
+    const x=Math.random()*size,y=Math.random()*size;
+    ctx.strokeStyle=colors[Math.floor(Math.random()*colors.length)];
+    ctx.globalAlpha=.35+Math.random()*.5;ctx.lineWidth=.6+Math.random()*1.5;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+(Math.random()-.5)*4,y-2-Math.random()*6);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+  const texture=new THREE.CanvasTexture(canvas);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+  texture.repeat.set(55,18);texture.colorSpace=THREE.SRGBColorSpace;return texture;
+}
+const groundGeo=new THREE.PlaneGeometry(5000,1400,300,100);groundGeo.rotateX(-Math.PI/2);
+const positions=groundGeo.attributes.position;
+for(let i=0;i<positions.count;i++)positions.setY(i,heightAt(positions.getX(i),positions.getZ(i)));
 groundGeo.computeVertexNormals();
-const ground = new THREE.Mesh(groundGeo,new THREE.MeshStandardMaterial({color:0x548b38,roughness:1}));
-ground.receiveShadow = true;
-scene.add(ground);
+const ground=new THREE.Mesh(groundGeo,new THREE.MeshStandardMaterial({map:makeGrassTexture(),roughness:1}));
+ground.receiveShadow=true;scene.add(ground);
 
-// Simple green valley ridges along the sides; the driveable center stays open.
-const hillMat = new THREE.MeshStandardMaterial({color:0x456b3c,roughness:1});
+// Distant, low-poly valley ridges frame the open driving area.
+const ridgeMaterials=[0x496f3d,0x547b45,0x3f6338].map(color=>new THREE.MeshStandardMaterial({color,roughness:1}));
 for(const side of [-1,1]){
-  const ridge = new THREE.Mesh(new THREE.CylinderGeometry(55,100,5000,24,1,true),hillMat);
-  ridge.rotation.z = Math.PI/2;
-  ridge.scale.y = 1.8;
-  ridge.position.set(0,33,side*390);
-  scene.add(ridge);
+  for(let i=0;i<12;i++){
+    const x=-2400+i*420+(Math.random()-.5)*100;
+    const h=100+Math.random()*150,w=170+Math.random()*150;
+    const ridge=new THREE.Mesh(new THREE.ConeGeometry(w,h,7),ridgeMaterials[i%ridgeMaterials.length]);
+    ridge.position.set(x,heightAt(x,side*520)+h*.38,side*(530+Math.random()*100));
+    ridge.scale.z=1.3;ridge.rotation.y=Math.random()*Math.PI;scene.add(ridge);
+  }
 }
 
-// Car model, oriented toward +X.
-const car = new THREE.Group();
-const red = new THREE.MeshStandardMaterial({color:0xd50000,metalness:0.35,roughness:0.35});
-const black = new THREE.MeshStandardMaterial({color:0x151515,roughness:0.8});
-const glass = new THREE.MeshStandardMaterial({color:0x183648,metalness:0.2,roughness:0.25});
-const chrome = new THREE.MeshStandardMaterial({color:0xbfc6c9,metalness:0.75,roughness:0.25});
-function box(w,h,d,mat,x,y,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=true;car.add(m);return m;}
-box(8,2.2,4,red,0,2,0);
-box(4,1.8,3,red,-0.2,3.8,0);
-box(2.4,0.3,3.8,red,2.6,3,0);
-box(0.16,1.2,2.8,glass,1.9,3.8,0);
-box(0.16,1.2,2.8,glass,-2,3.8,0);
-for(const side of [-1,1]) box(3.2,1,0.12,glass,0,3.8,side*1.52);
+// Trees line the valley slopes and leave plenty of room around the central route.
+const trunkMat=new THREE.MeshStandardMaterial({color:0x684528,roughness:1});
+const foliage=[0x276b2d,0x347d35,0x1e5927,0x4b8740].map(color=>new THREE.MeshStandardMaterial({color,roughness:1}));
+function addTree(x,z,scale){
+  const y=heightAt(x,z),group=new THREE.Group();
+  const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.28*scale,.45*scale,4.2*scale,7),trunkMat);
+  trunk.position.y=2.1*scale;trunk.castShadow=true;group.add(trunk);
+  for(let j=0;j<3;j++){
+    const crown=new THREE.Mesh(new THREE.ConeGeometry((2.5-j*.35)*scale,3.8*scale,8),foliage[Math.floor(Math.random()*foliage.length)]);
+    crown.position.y=(4.1+j*1.65)*scale;crown.castShadow=true;group.add(crown);
+  }
+  group.position.set(x,y,z);scene.add(group);
+}
+for(let i=0;i<230;i++){
+  const x=(Math.random()-.5)*4700;
+  const side=Math.random()<.5?-1:1;
+  const z=side*(150+Math.random()*420);
+  addTree(x,z,.65+Math.random()*.75);
+}
+
+// Vehicle faces local +X.
+const car=new THREE.Group();
+const red=new THREE.MeshStandardMaterial({color:0xd50000,metalness:.3,roughness:.36});
+const black=new THREE.MeshStandardMaterial({color:0x171717,roughness:.8});
+const glass=new THREE.MeshStandardMaterial({color:0x183648,metalness:.15,roughness:.28});
+const chrome=new THREE.MeshStandardMaterial({color:0xc2c8ca,metalness:.7,roughness:.25});
+function carBox(w,h,d,mat,x,y,z){const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);mesh.castShadow=true;car.add(mesh);return mesh;}
+carBox(8,2.2,4,red,0,2,0);carBox(4,1.8,3,red,-.2,3.8,0);carBox(2.4,.3,3.8,red,2.6,3,0);
+carBox(.16,1.2,2.8,glass,1.9,3.8,0);carBox(.16,1.2,2.8,glass,-2,3.8,0);
+for(const side of [-1,1])carBox(3.2,1,.12,glass,0,3.8,side*1.52);
 const wheels=[];
-for(const x of [-2.5,2.5]) for(const z of [-2,2]){
-  const wheel=new THREE.Group();
-  const tire=new THREE.Mesh(new THREE.CylinderGeometry(1,1,.7,24),black);
-  tire.rotation.x=Math.PI/2; wheel.add(tire);
-  const rim=new THREE.Mesh(new THREE.CylinderGeometry(.52,.52,.73,20),chrome);
-  rim.rotation.x=Math.PI/2; wheel.add(rim);
-  wheel.position.set(x,1,z); car.add(wheel); wheels.push(wheel);
+for(const x of [-2.5,2.5])for(const z of [-2,2]){
+  const wheel=new THREE.Group();const tire=new THREE.Mesh(new THREE.CylinderGeometry(1,1,.7,24),black);tire.rotation.x=Math.PI/2;wheel.add(tire);
+  const rim=new THREE.Mesh(new THREE.CylinderGeometry(.52,.52,.73,20),chrome);rim.rotation.x=Math.PI/2;wheel.add(rim);
+  wheel.position.set(x,1,z);car.add(wheel);wheels.push(wheel);
 }
 scene.add(car);
 
-// UI references are initialized before resetCar is called (avoids the previous startup crash).
 const handle=document.getElementById('slingshotHandle');
 const status=document.getElementById('slingshotText');
 const speedText=document.getElementById('speedText');
 const needle=document.getElementById('needle');
-let heading=0, vx=0, vz=0, dragging=false, startX=0, startY=0, pullX=0, pullY=0;
 const maxPull=55;
+let heading=0,speed=0,dragging=false,startX=0,startY=0,pullX=0,pullY=0;
+const keys=new Set();
 function moveHandle(x,y){handle.style.left=`calc(50% + ${x}px)`;handle.style.top=`calc(50% + ${y}px)`;}
-function resetCar(){
-  car.position.set(0,heightAt(0,0),0); heading=0; vx=0; vz=0;
-  car.rotation.set(0,0,0); moveHandle(0,0); speedText.textContent='0 MPH'; needle.style.transform='rotate(-130deg)';
-}
+function resetCar(){car.position.set(0,heightAt(0,0),0);heading=0;speed=0;car.rotation.set(0,0,0);moveHandle(0,0);speedText.textContent='0 MPH';needle.style.transform='rotate(-130deg)';}
 resetCar();
-handle.addEventListener('pointerdown',e=>{
-  e.preventDefault(); dragging=true; startX=e.clientX; startY=e.clientY; pullX=0; pullY=0;
-  handle.setPointerCapture(e.pointerId);
-});
+handle.addEventListener('pointerdown',e=>{e.preventDefault();dragging=true;startX=e.clientX;startY=e.clientY;pullX=0;pullY=0;handle.setPointerCapture(e.pointerId);});
 handle.addEventListener('pointermove',e=>{
-  if(!dragging)return; e.preventDefault();
-  pullX=THREE.MathUtils.clamp(e.clientX-startX,-maxPull,maxPull);
-  pullY=THREE.MathUtils.clamp(e.clientY-startY,-maxPull,maxPull);
-  moveHandle(pullX,pullY);
+  if(!dragging)return;e.preventDefault();pullX=THREE.MathUtils.clamp(e.clientX-startX,-maxPull,maxPull);pullY=THREE.MathUtils.clamp(e.clientY-startY,-maxPull,maxPull);moveHandle(pullX,pullY);
   status.textContent=`Launch power: ${Math.round(Math.max(0,pullY)/maxPull*100)}%`;
 });
 function release(){
-  if(!dragging)return; dragging=false;
-  // Pulling down stretches the slingshot; releasing launches the car forward.
-  const power=THREE.MathUtils.clamp(pullY/maxPull,0,1);
-  const aim=THREE.MathUtils.clamp(pullX/maxPull,-1,1);
-  if(power>0.04){
-    heading=-aim*0.8;
-    const launchSpeed=18+power*90;
-    vx=Math.cos(heading)*launchSpeed;
-    vz=-Math.sin(heading)*launchSpeed;
-    status.textContent='LAUNCHED! Pull down again to launch.';
-  }else status.textContent='Pull down and release to launch!';
+  if(!dragging)return;dragging=false;const power=THREE.MathUtils.clamp(pullY/maxPull,0,1);const aim=THREE.MathUtils.clamp(pullX/maxPull,-1,1);
+  if(power>.04){heading=-aim*.8;speed=18+power*55;status.textContent='LAUNCHED! Use A/D or arrows to steer.';}else status.textContent='Pull down and release to launch!';
   pullX=0;pullY=0;moveHandle(0,0);
 }
-handle.addEventListener('pointerup',release);
-handle.addEventListener('pointercancel',release);
+handle.addEventListener('pointerup',release);handle.addEventListener('pointercancel',release);
 document.getElementById('resetButton').addEventListener('click',()=>{resetCar();status.textContent='Pull down and release to launch!';});
+window.addEventListener('keydown',e=>{const key=e.key.toLowerCase();if(['a','d','arrowleft','arrowright'].includes(key)){e.preventDefault();keys.add(key);}});
+window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+window.addEventListener('blur',()=>keys.clear());
 
-const cameraTarget=new THREE.Vector3();
-const cameraDesired=new THREE.Vector3();
+const cameraTarget=new THREE.Vector3(),cameraDesired=new THREE.Vector3();
 let lastTime=performance.now();
 function animate(now){
-  requestAnimationFrame(animate);
-  const dt=Math.min((now-lastTime)/1000,0.04); lastTime=now;
-  // Frame-rate independent friction and ground-following movement.
-  const drag=Math.pow(0.994,dt*60); vx*=drag; vz*=drag;
-  car.position.x+=vx*dt; car.position.z+=vz*dt;
+  requestAnimationFrame(animate);const dt=Math.min((now-lastTime)/1000,.04);lastTime=now;
+  // Hills convert potential energy into speed downhill and take speed uphill.
+  const direction= speed<0 ? -1 : 1;
+  const downhillSlope=heightDerivatives(car.position.x,car.position.z);
+  const slopeAlongHeading=downhillSlope.x*Math.cos(heading)-downhillSlope.z*Math.sin(heading);
+  if(Math.abs(speed)>.05){
+    const gravityAccel=-9.8*slopeAlongHeading;
+    const rollingResistance=.32*direction;
+    speed+=(gravityAccel-rollingResistance)*dt;
+  }else if(Math.abs(speed)<=.05){speed=0;}
+  speed=THREE.MathUtils.clamp(speed,-15,105);
+
+  const steer=(keys.has('a')||keys.has('arrowleft')?1:0)-(keys.has('d')||keys.has('arrowright')?1:0);
+  if(steer!==0&&Math.abs(speed)>.15){
+    const steeringRate=1.5*Math.min(1,Math.abs(speed)/7);
+    heading+=steer*steeringRate*dt*(speed<0?-1:1);
+  }
+  car.position.x+=Math.cos(heading)*speed*dt;
+  car.position.z-=Math.sin(heading)*speed*dt;
+  car.position.x=THREE.MathUtils.clamp(car.position.x,-2450,2450);
+  car.position.z=THREE.MathUtils.clamp(car.position.z,-650,650);
   car.position.y=heightAt(car.position.x,car.position.z);
-  const speed=Math.hypot(vx,vz);
-  if(speed>0.5) heading=Math.atan2(-vz,vx);
   car.rotation.y=heading;
-  for(const wheel of wheels) wheel.rotation.z-=speed*dt*1.5;
-  const mph=Math.round(speed*2.237);
-  speedText.textContent=`${mph} MPH`;
+  for(const wheel of wheels)wheel.rotation.z-=speed*dt*1.5;
+  const mph=Math.round(Math.abs(speed)*2.237);speedText.textContent=`${mph} MPH`;
   needle.style.transform=`rotate(${THREE.MathUtils.clamp(-130+mph*2,-130,130)}deg)`;
 
-  // Car faces +X at heading 0. Camera stays behind it and looks slightly ahead.
   cameraDesired.set(car.position.x-Math.cos(heading)*22,car.position.y+10,car.position.z+Math.sin(heading)*22);
   cameraTarget.set(car.position.x+Math.cos(heading)*8,car.position.y+2.5,car.position.z-Math.sin(heading)*8);
-  camera.position.lerp(cameraDesired,1-Math.pow(0.002,dt));
-  camera.lookAt(cameraTarget);
+  camera.position.lerp(cameraDesired,1-Math.pow(.002,dt));camera.lookAt(cameraTarget);
   renderer.render(scene,camera);
 }
 requestAnimationFrame(animate);
-window.addEventListener('resize',()=>{
-  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight);
-});
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 </script>
 </body>
 </html>
