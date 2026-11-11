@@ -11,7 +11,7 @@
 <body>
 <div id="hud"><div id="speedometer"><div id="needle"></div></div><div id="speedText">0 MPH</div></div>
 <button id="resetButton">RESET CAR</button>
-<div id="help">One slingshot launch only.<br>A / D or ← / → to steer.<br>Big hills affect your speed. Avoid trees and rocks.</div>
+<div id="help">One slingshot launch only.<br>A / D or ← / → to steer.<br>Follow the bumpy path over the hills!</div>
 <div id="slingshot"><div id="slingshotTitle">SLINGSHOT</div><div id="slingshotArea"><div id="slingshotCenter"></div><div id="slingshotHandle"></div></div><div id="slingshotText">Pull down and release to launch!</div></div>
 <script type="module">
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
@@ -19,12 +19,17 @@ const scene=new THREE.Scene();scene.background=new THREE.Color(0x87ceeb);scene.f
 const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,6000);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xd8efff,0x405b2a,2.1));const sun=new THREE.DirectionalLight(0xffffff,2.4);sun.position.set(200,350,100);scene.add(sun);
-// Broad, high-amplitude ridges make the driving route visibly rise and fall like a hill-climb game.
-function heightAt(x,z){const sideRise=105*(1-Math.exp(-Math.pow(Math.max(0,Math.abs(z)-85)/230,2)));const rolling=78*Math.sin(x*.00135)+24*Math.sin(x*.0028+.7)+7*Math.sin(x*.005+z*.0015);const cross=5*Math.sin(z*.008+x*.0006);return sideRise+rolling+cross;}
+// Repeating steep rises and dips are centered on the route so the car must climb and descend hills.
+function heightAt(x,z){const sideRise=105*(1-Math.exp(-Math.pow(Math.max(0,Math.abs(z)-85)/230,2)));const pathHills=(72*Math.sin(x*.0045)+15*Math.sin(x*.009+.35))*Math.exp(-Math.pow(z/520,2));const distantRoll=16*Math.sin(x*.00125)+4*Math.sin(x*.00255+.7);const cross=5*Math.sin(z*.008+x*.0006);return sideRise+pathHills+distantRoll+cross;}
 function slopeAt(x,z){return{x:(heightAt(x+1,z)-heightAt(x-1,z))/2,z:(heightAt(x,z+1)-heightAt(x,z-1))/2};}
 const groundGeo=new THREE.PlaneGeometry(5000,1400,400,120);groundGeo.rotateX(-Math.PI/2);const gp=groundGeo.attributes.position;const colors=[];const low=new THREE.Color(0x557c38),mid=new THREE.Color(0x78a94e),high=new THREE.Color(0x9aaf58);
 for(let i=0;i<gp.count;i++){const x=gp.getX(i),z=gp.getZ(i),y=heightAt(x,z);gp.setY(i,y);const t=THREE.MathUtils.clamp((y+100)/260,0,1);const c=t<.55?low.clone().lerp(mid,t/.55):mid.clone().lerp(high,(t-.55)/.45);colors.push(c.r,c.g,c.b);}groundGeo.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));groundGeo.computeVertexNormals();
 const ground=new THREE.Mesh(groundGeo,new THREE.MeshStandardMaterial({color:0xffffff,vertexColors:true,roughness:1}));ground.receiveShadow=true;scene.add(ground);
+// A wide dirt track follows the height profile, making the hill-climb route easy to see.
+const roadGeo=new THREE.BufferGeometry(),roadPositions=[],roadIndices=[];const roadSteps=500,roadAcross=8,roadWidth=96;
+for(let i=0;i<=roadSteps;i++){const x=-2500+5000*i/roadSteps;for(let j=0;j<=roadAcross;j++){const z=-roadWidth/2+roadWidth*j/roadAcross;roadPositions.push(x,heightAt(x,z)+.8,z);}}
+for(let i=0;i<roadSteps;i++)for(let j=0;j<roadAcross;j++){const a=i*(roadAcross+1)+j,b=a+roadAcross+1;roadIndices.push(a,a+1,b,b,a+1,b+1);}
+roadGeo.setAttribute('position',new THREE.Float32BufferAttribute(roadPositions,3));roadGeo.setIndex(roadIndices);roadGeo.computeVertexNormals();const road=new THREE.Mesh(roadGeo,new THREE.MeshStandardMaterial({color:0x9a8055,roughness:1,side:THREE.DoubleSide}));road.receiveShadow=true;scene.add(road);
 const obstacles=[],trunkMat=new THREE.MeshStandardMaterial({color:0x684528}),leafMats=[0x276b2d,0x347d35,0x1e5927].map(color=>new THREE.MeshStandardMaterial({color}));
 function addTree(x,z,s){const tree=new THREE.Group(),trunk=new THREE.Mesh(new THREE.CylinderGeometry(.35*s,.5*s,4*s,8),trunkMat);trunk.position.y=2*s;tree.add(trunk);for(let j=0;j<3;j++){const crown=new THREE.Mesh(new THREE.ConeGeometry((2.3-j*.3)*s,3.8*s,9),leafMats[j%3]);crown.position.y=(4+j*1.5)*s;tree.add(crown);}tree.position.set(x,heightAt(x,z),z);scene.add(tree);obstacles.push({x,z,radius:2.4*s+2,label:'tree'});}
 for(let i=0;i<220;i++){const x=(Math.random()-.5)*4700,side=Math.random()<.5?-1:1,z=side*(155+Math.random()*390);if(Math.abs(x)<35&&Math.abs(z)<180)continue;addTree(x,z,.7+Math.random()*.7);}
